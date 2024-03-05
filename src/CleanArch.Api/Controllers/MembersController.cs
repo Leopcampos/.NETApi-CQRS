@@ -1,4 +1,7 @@
-﻿using CleanArch.Domain.Abstractions;
+﻿using CleanArch.Application.Members.Commands;
+using CleanArch.Domain.Abstractions;
+using CleanArch.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArch.Api.Controllers;
@@ -7,22 +10,45 @@ namespace CleanArch.Api.Controllers;
 [ApiController]
 public class MembersController : ControllerBase
 {
+    private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
 
-    public MembersController(IUnitOfWork unitOfWork)
-        => _unitOfWork = unitOfWork;
-
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    public MembersController(IMediator mediator, IUnitOfWork unitOfWork)
     {
-        var members = await _unitOfWork.MemberRepository.GetMembers();
-        return Ok(members);
+        _mediator = mediator;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> GetMember(int id)
     {
         var member = await _unitOfWork.MemberRepository.GetMemberById(id);
-        return member != null ? Ok(member) : NotFound("Member not found");
+        return member != null ? Ok(member) : NotFound("Member not found.");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateMember(CreateMemberCommand command)
+    {
+        var createdMember = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetMember), new { id = createdMember.Id }, createdMember);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateMember(int id, UpdateMemberCommand command)
+    {
+        command.Id = id;
+
+        var updatedMember = await _mediator.Send(command);
+        return updatedMember != null ? Ok(updatedMember) : NotFound("Member not found.");
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteMember(int id)
+    {
+        var command = new DeleteMemberCommand { Id = id };
+
+        var deletedMember = await _mediator.Send(command);
+
+        return deletedMember != null ? Ok(deletedMember) : NotFound("Member not found.");
     }
 }
