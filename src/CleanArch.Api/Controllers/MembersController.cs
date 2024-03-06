@@ -1,6 +1,5 @@
 ﻿using CleanArch.Application.Members.Commands;
-using CleanArch.Domain.Abstractions;
-using CleanArch.Domain.Entities;
+using CleanArch.Application.Members.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,18 +10,24 @@ namespace CleanArch.Api.Controllers;
 public class MembersController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public MembersController(IMediator mediator, IUnitOfWork unitOfWork)
+    public MembersController(IMediator mediator) 
+        => _mediator = mediator;
+
+    [HttpGet]
+    public async Task<IActionResult> GetMembers()
     {
-        _mediator = mediator;
-        _unitOfWork = unitOfWork;
+        var query = new GetMembersQuery();
+        var members = await _mediator.Send(query);
+        return Ok(members);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetMember(int id)
     {
-        var member = await _unitOfWork.MemberRepository.GetMemberById(id);
+        var query = new GetMemberByIdQuery { Id = id };
+        var member = await _mediator.Send(query);
+
         return member != null ? Ok(member) : NotFound("Member not found.");
     }
 
