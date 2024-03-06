@@ -4,14 +4,8 @@ using MediatR;
 
 namespace CleanArch.Application.Members.Commands;
 
-public class CreateMemberCommand : IRequest<Member>
+public class CreateMemberCommand : MemberCommandBase
 {
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? Gender { get; set; }
-    public string? Email { get; set; }
-    public bool? IsActive { get; set; }
-
     public class CreateMemberCommandHandler : IRequestHandler<CreateMemberCommand, Member>
     {
         private readonly IUnitOfWork _unitOfWork;
