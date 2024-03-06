@@ -10,7 +10,7 @@ public class CreateMemberCommand : MemberCommandBase
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public CreateMemberCommandHandler(IUnitOfWork unitOfWork)
+        public CreateMemberCommandHandler(IUnitOfWork unitOfWork) 
             => _unitOfWork = unitOfWork;
 
         public async Task<Member> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
