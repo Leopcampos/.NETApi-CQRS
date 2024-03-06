@@ -1,3 +1,4 @@
+using CleanArch.Api.Filters;
 using CleanArch.CrossCutting.AppDependencies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//registro dos serviços
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Registra o filtro de exceção personalizado
+builder.Services.AddMvc(options =>
+{
+    options.Filters.Add(new CustomExceptionFilter());
+});
 
 var app = builder.Build();
 
@@ -21,9 +29,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
